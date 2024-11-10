@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1EA90C972CE0CF2100649FA4 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1EA90C962CE0CF2100649FA4 /* Kingfisher */; };
 		1EDDE4CD2CE085E8007D4D00 /* PhotoEditor in Frameworks */ = {isa = PBXBuildFile; productRef = 1EDDE4CC2CE085E8007D4D00 /* PhotoEditor */; };
 /* End PBXBuildFile section */
 
@@ -40,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1EA90C972CE0CF2100649FA4 /* Kingfisher in Frameworks */,
 				1EDDE4CD2CE085E8007D4D00 /* PhotoEditor in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,6 +86,7 @@
 			name = PhotoEditorDemo;
 			packageProductDependencies = (
 				1EDDE4CC2CE085E8007D4D00 /* PhotoEditor */,
+				1EA90C962CE0CF2100649FA4 /* Kingfisher */,
 			);
 			productName = PhotoEditorDemo;
 			productReference = 1EDDE4B32CE08524007D4D00 /* PhotoEditorDemo.app */;
@@ -115,6 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				1EDDE4CB2CE085E8007D4D00 /* XCLocalSwiftPackageReference "../../../PhotoEditor" */,
+				1EA90C952CE0CF2100649FA4 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1EDDE4B42CE08524007D4D00 /* Products */;
@@ -362,7 +366,23 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		1EA90C952CE0CF2100649FA4 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		1EA90C962CE0CF2100649FA4 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1EA90C952CE0CF2100649FA4 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		1EDDE4CC2CE085E8007D4D00 /* PhotoEditor */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PhotoEditor;
