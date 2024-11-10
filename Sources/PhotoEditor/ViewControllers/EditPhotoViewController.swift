@@ -13,7 +13,7 @@ import Then
 
 @available(iOS 17.0, *)
 #Preview(traits: .defaultLayout, body: {
-    EditPhotoViewController()
+    EditPhotoViewController(emojiDataSource: MockEmojiDataSource())
 })
 
 @objc protocol EditPhotoViewControllerDelegate: class {
@@ -38,6 +38,8 @@ import Then
     }
     
     weak var delegate: EditPhotoViewControllerDelegate?
+    
+    private let viewModel: EditPhotoViewModel
 
     // 드로잉 영역
     private let canvasView = PKCanvasView().then {
@@ -81,11 +83,22 @@ import Then
     
     private var currentOptionMode: OptionMode = .default
     
+    public init(emojiDataSource: EditPhotoEmojiDataSource) {
+        self.viewModel = EditPhotoViewModel(emojiDataSource: emojiDataSource)
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         addSubviews()
         setupLayouts()
         setupStyles()
+        
+        loadAssets()
     }
     
     public override func viewWillDisappear(_ animated: Bool) {
@@ -146,6 +159,13 @@ import Then
         canvasOptionView.snp.makeConstraints {
             $0.leading.top.trailing.equalToSuperview()
             $0.height.equalTo(80)
+        }
+    }
+   
+    private func loadAssets() {
+        Task {
+            // 이모지 섹션
+            emojiOptionView.configure(with: await viewModel.fetchEmojiSection(), selectedIndex: nil)
         }
     }
     
@@ -346,9 +366,17 @@ import Then
 
 extension EditPhotoViewController: @preconcurrency EmojiOptionViewDelegate {
     func didSelectEmojiCategory(indexPath: IndexPath) {
-        print(#function)
-        let vc = EmojiSearchBottomSheet()
+        print(#function, indexPath)
+        let vc = EmojiSearchBottomSheet(emojiDataSource: viewModel.emojiDataSource)
         vc.selectDelegate = self
+        Task {
+            vc.configure(
+                with: await viewModel.fetchEmojiItems(for: indexPath.row),
+                options: await viewModel.fetchEmojiSection(),
+                selectedIndex: indexPath
+            )
+        }
+        
         if let sheet = vc.sheetPresentationController {
             sheet.delegate = self
             sheet.detents = [.medium(), .large()]
@@ -394,6 +422,11 @@ extension EditPhotoViewController: @preconcurrency EmojiSearchBottomSheetDelegat
             
             self.addImage(image: image)
         }
+    }
+    
+    // 이모지 카테고리 선택
+    func didSelectBottomSheetEmojiCategory(indexPath: IndexPath) {
+        self.emojiOptionView.updateSelection(selectedIndex: indexPath)
     }
 }
 

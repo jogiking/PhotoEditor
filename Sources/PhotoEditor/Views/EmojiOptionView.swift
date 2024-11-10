@@ -36,14 +36,8 @@ final class EmojiOptionView: UIView, UICollectionViewDelegate, UICollectionViewD
         $0.layer.cornerRadius = 16
     }
     
-    private let emojis = [
-        "borabuki_on",
-        "floki_on",
-        "flosuni_on",
-        "leechorok_on",
-        "pengflo_on"
-    ]
-
+    private var emojis: [UIImage] = []
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubviews()
@@ -86,6 +80,18 @@ final class EmojiOptionView: UIView, UICollectionViewDelegate, UICollectionViewD
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.register(EditPhotoCollectionViewCell.self, forCellWithReuseIdentifier: "emojiCell")
     }
+    
+    func configure(with emojis: [UIImage], selectedIndex: IndexPath?) {
+        self.emojis = emojis
+        collectionView.reloadData()        
+        updateSelection(selectedIndex: selectedIndex)
+    }
+    
+    func updateSelection(selectedIndex: IndexPath?) {
+        if let selectedIndex = selectedIndex {
+            collectionView.selectItem(at: selectedIndex, animated: false, scrollPosition: .centeredHorizontally)
+        }
+    }
 
     // MARK: - UICollectionViewDataSource
 
@@ -95,7 +101,7 @@ final class EmojiOptionView: UIView, UICollectionViewDelegate, UICollectionViewD
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "emojiCell", for: indexPath) as! EditPhotoCollectionViewCell
-        cell.configure(with: UIImage.loadAsset(named: emojis[indexPath.row]))
+        cell.configure(with: emojis[indexPath.row])
         return cell
     }
 

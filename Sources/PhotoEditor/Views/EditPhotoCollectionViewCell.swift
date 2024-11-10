@@ -18,6 +18,13 @@ final class EditPhotoCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         contentView.addSubview(emojiImageView)
         setupLayouts()
+        setupStyles()
+    }
+    
+    override var isSelected: Bool {
+        didSet {
+            updateAppearance()
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -26,12 +33,22 @@ final class EditPhotoCollectionViewCell: UICollectionViewCell {
     
     private func setupLayouts() {
         emojiImageView.snp.makeConstraints {
-            $0.edges.equalToSuperview() // 셀의 전체를 이미지로 채움
+            $0.edges.equalToSuperview()
         }
-        emojiImageView.contentMode = .scaleAspectFit // 이미지가 셀에 맞게 조정되도록 설정
+        emojiImageView.contentMode = .scaleAspectFit
+    }
+    
+    private func setupStyles() {
+        emojiImageView.layer.cornerRadius = 4
+        emojiImageView.layer.masksToBounds = true
     }
     
     func configure(with image: UIImage?) {
         emojiImageView.image = image
+        updateAppearance()
+    }
+    
+    private func updateAppearance() {
+        emojiImageView.alpha = isSelected ? 0.5 : 1
     }
 }
