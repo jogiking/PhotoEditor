@@ -190,7 +190,7 @@ final class ImageCell: UICollectionViewCell {
 
 // MARK: - EmojiOptionViewDelegate
 
-extension EmojiSearchBottomSheet: @preconcurrency EmojiOptionViewDelegate {
+extension EmojiSearchBottomSheet: EmojiOptionViewDelegate {
     func didSelectEmojiCategory(indexPath: IndexPath) {
         self.selectDelegate?.didSelectBottomSheetEmojiCategory(indexPath: indexPath)
     }

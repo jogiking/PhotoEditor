@@ -364,7 +364,7 @@ import Then
     }
 }
 
-extension EditPhotoViewController: @preconcurrency EmojiOptionViewDelegate {
+extension EditPhotoViewController: EmojiOptionViewDelegate {
     func didSelectEmojiCategory(indexPath: IndexPath) {
         print(#function, indexPath)
         let vc = EmojiSearchBottomSheet(emojiDataSource: viewModel.emojiDataSource)
@@ -408,7 +408,7 @@ extension EditPhotoViewController: UISheetPresentationControllerDelegate {
     }
 }
 
-extension EditPhotoViewController: @preconcurrency EmojiSearchBottomSheetDelegate {
+extension EditPhotoViewController: EmojiSearchBottomSheetDelegate {
     // 이모지 최종 선택 이벤트
     func didSelectEmojiItem(image: UIImage?) {
         print(#function)
@@ -430,7 +430,7 @@ extension EditPhotoViewController: @preconcurrency EmojiSearchBottomSheetDelegat
     }
 }
 
-extension EditPhotoViewController: @preconcurrency CanvasOptionViewDelegate {
+extension EditPhotoViewController: CanvasOptionViewDelegate {
     // 컬러칩 최종 선택 이벤트
     func didSelectDrawingColor(hex: String) {
         print(#function)
