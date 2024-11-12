@@ -42,7 +42,7 @@ import Then
     private let viewModel: EditPhotoViewModel
 
     // 드로잉 영역
-    private let canvasView = PKCanvasView().then {
+    private lazy var canvasView = PKCanvasView().then {
         if #available(iOS 17.0, *) {
             $0.tool = PKInkingTool(.crayon, color: .red, width: 10)
         } else {
@@ -50,6 +50,7 @@ import Then
         }
         $0.drawingPolicy = .anyInput
         $0.backgroundColor = .clear
+        $0.delegate = self
     }
     private let mainImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
@@ -169,6 +170,17 @@ import Then
         }
     }
     
+    private func addStroke(image: UIImage, bounds: CGRect) {
+        let newImageView = UIImageView(image: image)
+        newImageView.frame = bounds
+        newImageView.isUserInteractionEnabled = false
+        
+        self.selectedImageView?.isSelected = false // 기존 이미지가 있다면 선택해제
+        self.canvasView.isUserInteractionEnabled = true // 캔버스 Drawing 활성화
+        
+        mainImageContainerView.addSubview(newImageView)
+    }
+    
     private func addImage(image: UIImage? = nil) {
         let newImageView = StickerImageView()
         if let image = image {
@@ -242,6 +254,7 @@ import Then
             allOptionView.isHidden = false
             emojiOptionView.isHidden = true
             canvasOptionView.isHidden = true
+            canvasView.isUserInteractionEnabled = false
         case .emoji:
             allOptionView.isHidden = true
             emojiOptionView.isHidden = false
@@ -250,6 +263,9 @@ import Then
             allOptionView.isHidden = true
             emojiOptionView.isHidden = true
             canvasOptionView.isHidden = false
+            selectedImageView?.isSelected = false
+            mainImageContainerView.bringSubviewToFront(canvasView)
+            canvasView.isUserInteractionEnabled = true
         }
     }
     
@@ -309,7 +325,6 @@ import Then
     // 스티커 이미지 외부 터치시 모든 선택 이미지 비활성화 처리
     @objc private func didTappedImageBackground() {
         selectedImageView?.isSelected = false
-        canvasView.isUserInteractionEnabled = true
     }
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
@@ -433,6 +448,16 @@ extension EditPhotoViewController: CanvasOptionViewDelegate {
             canvasView.tool = PKInkingTool(.crayon, color: hex.stringToColor, width: 10)
         } else {
             canvasView.tool = PKInkingTool(.marker, color: hex.stringToColor, width: 10)
+        }
+    }
+}
+
+extension EditPhotoViewController: PKCanvasViewDelegate {
+    public func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
+        if let lastStroke = canvasView.drawing.strokes.last {
+            let image = canvasView.drawing.image(from: lastStroke.renderBounds, scale: UIScreen.main.scale)
+            self.addStroke(image: image, bounds: lastStroke.renderBounds)
+            canvasView.drawing = PKDrawing()
         }
     }
 }
