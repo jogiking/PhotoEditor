@@ -59,7 +59,7 @@ final class CanvasOptionView: UIView, UICollectionViewDelegate, UICollectionView
     private func addSubviews() {
         addSubview(collectionView)
         addSubview(closeBackgroundView)
-        closeBackgroundView.addSubview(closeButton)
+        addSubview(closeButton)
     }
 
     private func setupLayouts() {
@@ -70,8 +70,8 @@ final class CanvasOptionView: UIView, UICollectionViewDelegate, UICollectionView
         }
         
         closeButton.snp.makeConstraints {
-            $0.size.equalTo(16)
-            $0.center.equalToSuperview()
+            $0.center.equalTo(closeBackgroundView)
+            $0.size.equalTo(45)
         }
 
         collectionView.snp.makeConstraints {
