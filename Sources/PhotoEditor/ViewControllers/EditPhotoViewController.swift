@@ -31,6 +31,9 @@ import Then
     private var insertedImages: [StickerImageView] = []
     private var selectedImageView: StickerImageView?
     
+    // 삭제한 뷰 임시저장
+    private var removedViews: [UIView] = []
+    
     var originImage: UIImage? {
         didSet {
             mainImageView.image = originImage
@@ -63,6 +66,20 @@ import Then
         $0.setTitle("완료", for: .normal)
         $0.setTitleColor(.white, for: .normal)
         $0.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
+    }
+    private lazy var undoButton = UIButton(type: .custom).then {
+        $0.setImage(UIImage(systemName: "arrow.uturn.backward.circle"), for: .normal)
+        $0.tintColor = .white
+        $0.contentHorizontalAlignment = .fill
+        $0.contentVerticalAlignment = .fill
+        $0.addTarget(self, action: #selector(undoTapped), for: .touchUpInside)
+    }
+    private lazy var redoButton = UIButton(type: .custom).then {
+        $0.setImage(UIImage(systemName: "arrow.uturn.forward.circle"), for: .normal)
+        $0.tintColor = .white
+        $0.contentHorizontalAlignment = .fill
+        $0.contentVerticalAlignment = .fill
+        $0.addTarget(self, action: #selector(redoTapped), for: .touchUpInside)
     }
     private lazy var mainImageContainerView = UIView().then {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTappedImageBackground))
@@ -110,6 +127,8 @@ import Then
     private func addSubviews() {
         view.addSubview(dismissButton)
         view.addSubview(saveButton)
+        view.addSubview(undoButton)
+        view.addSubview(redoButton)
         view.addSubview(mainImageContainerView)
         view.addSubview(bottomContainerView)
         mainImageContainerView.addSubview(mainImageView)
@@ -126,8 +145,18 @@ import Then
             $0.size.equalTo(24)
         }
         saveButton.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.centerY.equalTo(dismissButton)
             $0.trailing.equalToSuperview().inset(12)
+        }
+        undoButton.snp.makeConstraints {
+            $0.centerY.equalTo(dismissButton)
+            $0.leading.equalTo(dismissButton.snp.trailing).offset(24)
+            $0.size.equalTo(24)
+        }
+        redoButton.snp.makeConstraints {
+            $0.top.equalTo(undoButton)
+            $0.leading.equalTo(undoButton.snp.trailing).offset(10)
+            $0.size.equalTo(24)
         }
         mainImageContainerView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
@@ -162,7 +191,12 @@ import Then
             $0.height.equalTo(80)
         }
     }
-   
+
+    private func updateRedoUndoAppearance() {
+        undoButton.isEnabled = mainImageContainerView.subviews.count > 2
+        redoButton.isEnabled = removedViews.count > 0
+    }
+    
     private func loadAssets() {
         Task {
             // 이모지 섹션
@@ -179,6 +213,7 @@ import Then
         self.canvasView.isUserInteractionEnabled = true // 캔버스 Drawing 활성화
         
         mainImageContainerView.addSubview(newImageView)
+        updateRedoUndoAppearance()
     }
     
     private func addImage(image: UIImage? = nil) {
@@ -230,6 +265,7 @@ import Then
         canvasOptionView.closeButton.addTarget(self, action: #selector(closeEmojiTapped), for: .touchUpInside)
         
         transition(mode: currentOptionMode)
+        updateRedoUndoAppearance()
     }
     
     @objc func dismissTapped() {
@@ -254,6 +290,7 @@ import Then
             allOptionView.isHidden = false
             emojiOptionView.isHidden = true
             canvasOptionView.isHidden = true
+            selectedImageView?.isSelected = false
             canvasView.isUserInteractionEnabled = false
         case .emoji:
             allOptionView.isHidden = true
@@ -271,22 +308,59 @@ import Then
     
     @objc func openEmojiTapped() {
         print(#function)
-        transition(mode: .emoji)
+        currentOptionMode = .emoji
+        transition(mode: currentOptionMode)
     }
     
     @objc func openCanvasTapped() {
         print(#function)
-        transition(mode: .canvas)
+        currentOptionMode = .canvas
+        transition(mode: currentOptionMode)
     }
     
     @objc func closeEmojiTapped() {
         print(#function)
-        transition(mode: .default)
+        currentOptionMode = .default
+        transition(mode: currentOptionMode)
     }
     
     @objc func closeCanvasTapped() {
         print(#function)
-        transition(mode: .default)
+        currentOptionMode = .default
+        transition(mode: currentOptionMode)
+    }
+    
+    @objc func undoTapped() {
+        if let lastModifiedView = mainImageContainerView.subviews.reversed().first(where: {
+            $0 != mainImageView && $0 != canvasView
+        }) {
+            if let stickerImageView = lastModifiedView as? StickerImageView {
+                stickerImageView.isSelected = false
+                if let indexOfSelectedImage = insertedImages.firstIndex(of: stickerImageView) {
+                    insertedImages.remove(at: indexOfSelectedImage)
+                }
+            }
+            
+            lastModifiedView.removeFromSuperview()
+            
+            removedViews.append(lastModifiedView)
+        }
+        
+        updateRedoUndoAppearance()
+        transition(mode: currentOptionMode)
+    }
+    
+    @objc func redoTapped() {
+        if let recentlyRemovedView = removedViews.popLast() {
+            if let stickerIamgeView = recentlyRemovedView as? StickerImageView {
+                insertedImages.append(stickerIamgeView)
+            }
+            
+            mainImageContainerView.addSubview(recentlyRemovedView)
+        }
+        
+        updateRedoUndoAppearance()
+        transition(mode: currentOptionMode)
     }
 
     @objc private func selectImage(_ gesture: UITapGestureRecognizer) {
@@ -320,6 +394,8 @@ import Then
         }
         imageView.removeFromSuperview()
         canvasView.isUserInteractionEnabled = true
+        
+        updateRedoUndoAppearance()
     }
     
     // 스티커 이미지 외부 터치시 모든 선택 이미지 비활성화 처리
@@ -430,6 +506,7 @@ extension EditPhotoViewController: EmojiSearchBottomSheetDelegate {
             
             if let image = image {
                 self.addImage(image: image)
+                self.updateRedoUndoAppearance()
             }
         }
     }
