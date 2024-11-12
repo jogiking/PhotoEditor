@@ -369,13 +369,7 @@ extension EditPhotoViewController: EmojiOptionViewDelegate {
         print(#function, indexPath)
         let vc = EmojiSearchBottomSheet(emojiDataSource: viewModel.emojiDataSource)
         vc.selectDelegate = self
-        Task {
-            vc.configure(
-                with: await viewModel.fetchEmojiItems(for: indexPath.row),
-                options: await viewModel.fetchEmojiSection(),
-                selectedIndex: indexPath
-            )
-        }
+        vc.configure(selectedIndex: indexPath)
         
         if let sheet = vc.sheetPresentationController {
             sheet.delegate = self

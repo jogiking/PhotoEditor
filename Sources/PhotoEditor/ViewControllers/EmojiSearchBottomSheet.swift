@@ -108,11 +108,12 @@ final class EmojiSearchBottomSheet: UIViewController {
         }
     }
     
-    func configure(with items: [UIImage], options: [UIImage], selectedIndex: IndexPath) {
-        self.items = items
-        collectionView.reloadData()
-        
-        emojiOptionView.configure(with: options, selectedIndex: selectedIndex)
+    func configure(selectedIndex: IndexPath) {
+        Task {
+            emojiOptionView.configure(with: await viewModel.fetchEmojiSection(), selectedIndex: selectedIndex)
+            items = await viewModel.fetchEmojiItems(for: selectedIndex.row)
+            collectionView.reloadData()
+        }
     }
     
     // MARK: - Collection View Setup
@@ -120,6 +121,7 @@ final class EmojiSearchBottomSheet: UIViewController {
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.register(ImageCell.self, forCellWithReuseIdentifier: ImageCell.identifier)
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0)
     }
     
     // MARK: - Actions
@@ -192,6 +194,13 @@ final class ImageCell: UICollectionViewCell {
 
 extension EmojiSearchBottomSheet: EmojiOptionViewDelegate {
     func didSelectEmojiCategory(indexPath: IndexPath) {
+        // 선택한 카테고리 아이템으로 업데이트
+        Task {
+            items = await viewModel.fetchEmojiItems(for: indexPath.row)
+            collectionView.reloadData()
+        }
+        
+        // 이전화면의 선택 옵션을 갱신
         self.selectDelegate?.didSelectBottomSheetEmojiCategory(indexPath: indexPath)
     }
 }
