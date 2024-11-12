@@ -16,7 +16,7 @@ import Then
     EditPhotoViewController(emojiDataSource: MockEmojiDataSource())
 })
 
-@objc protocol EditPhotoViewControllerDelegate: class {
+@objc public protocol EditPhotoViewControllerDelegate: class {
     func saveEditedImage(_ image: UIImage)
 }
 
@@ -405,7 +405,6 @@ extension EditPhotoViewController: UISheetPresentationControllerDelegate {
 extension EditPhotoViewController: EmojiSearchBottomSheetDelegate {
     // 이모지 최종 선택 이벤트
     func didSelectEmojiItem(image: UIImage?) {
-        print(#function)
         DispatchQueue.main.async {
             UIView.animate(withDuration: 0.15, delay: 0, options: .curveEaseInOut, animations: {
                 self.bottomContainerView.snp.updateConstraints {
@@ -414,7 +413,9 @@ extension EditPhotoViewController: EmojiSearchBottomSheetDelegate {
                 self.view.layoutIfNeeded()
             })
             
-            self.addImage(image: image)
+            if let image = image {
+                self.addImage(image: image)
+            }
         }
     }
     
