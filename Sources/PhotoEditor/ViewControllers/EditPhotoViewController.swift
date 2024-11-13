@@ -32,9 +32,6 @@ import Then
     private var insertedImages: [StickerImageView] = []
     private var selectedImageView: StickerImageView?
     
-    // 삭제한 뷰 임시저장
-    private var removedViews: [UIView] = []
-    
     var originImage: UIImage? {
         didSet {
             mainImageView.image = originImage
@@ -194,8 +191,8 @@ import Then
     }
 
     private func updateRedoUndoAppearance() {
-        undoButton.isEnabled = mainImageContainerView.subviews.count > 2
-        redoButton.isEnabled = removedViews.count > 0
+        undoButton.isEnabled = viewModel.undoEvent.count > 0
+        redoButton.isEnabled = viewModel.redoEvent.count > 0
     }
     
     private func loadAssets() {
@@ -212,6 +209,8 @@ import Then
         
         self.selectedImageView?.isSelected = false // 기존 이미지가 있다면 선택해제
         self.canvasView.isUserInteractionEnabled = true // 캔버스 Drawing 활성화
+        
+        viewModel.addEditEvent(EditEvent(targetView: newImageView, eventType: .addStroke))
         
         mainImageContainerView.addSubview(newImageView)
         updateRedoUndoAppearance()
@@ -250,6 +249,8 @@ import Then
         self.selectedImageView = newImageView
         
         mainImageContainerView.addSubview(newImageView)
+        
+        viewModel.addEditEvent(EditEvent(targetView: newImageView, eventType: .addEmoji))
         
         // 이미지가 추가된 후 애니메이션 효과 적용
         newImageView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7)
@@ -346,19 +347,31 @@ import Then
     }
     
     @objc func undoTapped() {
-        if let lastModifiedView = mainImageContainerView.subviews.reversed().first(where: {
-            $0 != mainImageView && $0 != canvasView
-        }) {
-            if let stickerImageView = lastModifiedView as? StickerImageView {
+        guard let event = viewModel.popUndoEvent() else { return }
+        
+        self.selectedImageView?.isSelected = false // 기존 선택된 이미지가 있다면 선택해제
+        
+        let targetView = event.targetView
+        switch event.eventType {
+        case .addEmoji:
+            if let stickerImageView = targetView as? StickerImageView {
                 stickerImageView.isSelected = false
                 if let indexOfSelectedImage = insertedImages.firstIndex(of: stickerImageView) {
                     insertedImages.remove(at: indexOfSelectedImage)
                 }
+                stickerImageView.removeFromSuperview()
             }
             
-            lastModifiedView.removeFromSuperview()
+        case .addStroke:
+            targetView.removeFromSuperview()
             
-            removedViews.append(lastModifiedView)
+        case .deleteEmoji:
+            if let stickerImageView = targetView as? StickerImageView {
+                selectedImageView = stickerImageView
+                selectedImageView?.isSelected = true
+                insertedImages.append(stickerImageView)
+                mainImageContainerView.addSubview(stickerImageView)
+            }
         }
         
         updateRedoUndoAppearance()
@@ -366,12 +379,31 @@ import Then
     }
     
     @objc func redoTapped() {
-        if let recentlyRemovedView = removedViews.popLast() {
-            if let stickerIamgeView = recentlyRemovedView as? StickerImageView {
-                insertedImages.append(stickerIamgeView)
+        guard let event = viewModel.popRedoEvent() else { return }
+        
+        self.selectedImageView?.isSelected = false // 기존 선택된 이미지가 있다면 선택해제
+        
+        let targetView = event.targetView
+        switch event.eventType {
+        case .addEmoji:
+            if let stickerImageView = targetView as? StickerImageView {
+                selectedImageView = stickerImageView
+                selectedImageView?.isSelected = true
+                insertedImages.append(stickerImageView)
+                mainImageContainerView.addSubview(stickerImageView)
             }
             
-            mainImageContainerView.addSubview(recentlyRemovedView)
+        case .addStroke:
+            self.canvasView.isUserInteractionEnabled = true // 캔버스 Drawing 활성화
+            mainImageContainerView.addSubview(targetView)
+            
+        case .deleteEmoji:
+            if let stickerImageView = targetView as? StickerImageView {
+                if let indexOfSelectedImage = insertedImages.firstIndex(of: stickerImageView) {
+                    insertedImages.remove(at: indexOfSelectedImage)
+                    stickerImageView.removeFromSuperview()
+                }
+            }
         }
         
         updateRedoUndoAppearance()
@@ -409,6 +441,8 @@ import Then
         }
         imageView.removeFromSuperview()
         canvasView.isUserInteractionEnabled = true
+        
+        viewModel.addEditEvent(EditEvent(targetView: imageView, eventType: .deleteEmoji))
         
         updateRedoUndoAppearance()
     }

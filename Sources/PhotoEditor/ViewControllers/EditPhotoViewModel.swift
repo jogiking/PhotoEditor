@@ -14,8 +14,21 @@ public protocol EditPhotoEmojiDataSource: Sendable {
     func loadEmojiItems(for section: Int) async -> [UIImage]
 }
 
+struct EditEvent {
+    enum EventType {
+        case addEmoji
+        case addStroke
+        case deleteEmoji
+    }
+    var targetView: UIView
+    var eventType: EventType
+}
+
 @MainActor
 final class EditPhotoViewModel {
+    
+    private(set) var undoEvent: [EditEvent] = []
+    private(set) var redoEvent: [EditEvent] = []
     
     let emojiDataSource: EditPhotoEmojiDataSource
     
@@ -31,5 +44,25 @@ final class EditPhotoViewModel {
     // 특정 섹션의 이모지 아이템 로드
     nonisolated func fetchEmojiItems(for section: Int) async -> [UIImage] {
         return await emojiDataSource.loadEmojiItems(for: section)
+    }
+    
+    func addEditEvent(_ event: EditEvent) {
+        undoEvent.append(event)
+    }
+    
+    func popUndoEvent() -> EditEvent? {
+        guard let lastEvent = undoEvent.popLast() else {
+            return nil
+        }
+        redoEvent.append(lastEvent)
+        return lastEvent
+    }
+    
+    func popRedoEvent() -> EditEvent? {
+        guard let lastEvent = redoEvent.popLast() else {
+            return nil
+        }
+        undoEvent.append(lastEvent)
+        return lastEvent
     }
 }
