@@ -449,8 +449,14 @@ import Then
             // 크기 조절
             let deltaWidth = touchPoint.x - initialTouchPoint.x
             let deltaHeight = touchPoint.y - initialTouchPoint.y
-            let newWidth = initialBounds.width + deltaWidth
-            let newHeight = initialBounds.height + deltaHeight
+            
+            // 더 큰 변화량을 기준으로 스케일링
+            let maxDelta = max(deltaWidth, deltaHeight)
+            let scaleFactor = maxDelta / initialBounds.width
+            
+            // 기존 비율에 맞는 크기
+            let newWidth = initialBounds.width * (1 + scaleFactor)
+            let newHeight = initialBounds.height * (1 + scaleFactor)
             
             // 최소 및 최대 크기 제한 설정
             let minSize: CGFloat = 50
