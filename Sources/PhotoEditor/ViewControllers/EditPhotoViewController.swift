@@ -161,8 +161,8 @@ import Then
         }
         mainImageContainerView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
-            $0.top.equalTo(dismissButton.snp.bottom)
-            $0.bottom.equalToSuperview().inset(80)
+            $0.top.equalTo(dismissButton.snp.bottom).offset(8)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(80)
         }
         canvasView.snp.makeConstraints {
             $0.edges.equalToSuperview()
