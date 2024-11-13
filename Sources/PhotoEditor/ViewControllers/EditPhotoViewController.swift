@@ -7,6 +7,7 @@
 
 import UIKit
 import PencilKit
+import AVFoundation
 
 import SnapKit
 import Then
@@ -275,7 +276,9 @@ import Then
     
     @objc func saveTapped() {
         print(#function)
-        let renderer = UIGraphicsImageRenderer(bounds: mainImageContainerView.bounds)
+        let imageFrame = AVMakeRect(aspectRatio: mainImageView.image?.size ?? .zero, insideRect: mainImageView.frame)
+        let targetFrame = mainImageContainerView.convert(imageFrame, to: mainImageContainerView)
+        let renderer = UIGraphicsImageRenderer(bounds: targetFrame)
         let convertedImage = renderer.image { rendererContext in
             self.mainImageContainerView.layer.render(in: rendererContext.cgContext)
         }
