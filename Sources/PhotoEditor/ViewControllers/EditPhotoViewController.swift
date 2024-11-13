@@ -286,6 +286,8 @@ import Then
     
     @objc func saveTapped() {
         print(#function)
+        selectedImageView?.isSelected = false
+        
         let imageFrame = AVMakeRect(aspectRatio: mainImageView.image?.size ?? .zero, insideRect: mainImageView.frame)
         let targetFrame = mainImageContainerView.convert(imageFrame, to: mainImageContainerView)
         let renderer = UIGraphicsImageRenderer(bounds: targetFrame)
