@@ -250,6 +250,16 @@ import Then
         self.selectedImageView = newImageView
         
         mainImageContainerView.addSubview(newImageView)
+        
+        // 이미지가 추가된 후 애니메이션 효과 적용
+        newImageView.transform = CGAffineTransform(scaleX: 0.7, y: 0.7)
+        UIView.animate(withDuration: 0.3,
+                       delay: 0,
+                       usingSpringWithDamping: 0.5,
+                       initialSpringVelocity: 0.5,
+                       options: [.curveEaseInOut]) {
+            newImageView.transform = .identity
+        }
     }
     
     private func setupStyles() {
