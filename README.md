@@ -2,6 +2,14 @@
 
 A powerful photo editing tool designed for quick integration into your iOS projects.
 
+## ✨ Features
+- Image Attachment: Add images to the canvas.
+- Scale & Rotate: Zoom, rotate, and adjust attached images.
+- Drawing: Draw on Image using customizable colors.
+- Undo/Redo: Reverse or reapply recent changes.
+- Save Edited Image: Save final edits using the delegate method.
+
+
 ## 📦 Installation
 
 ### Using Swift Package Manager
@@ -64,11 +72,21 @@ struct MyEmojiDataSource: EditPhotoEmojiDataSource {
     }
 }
 
+extension MyViewController: EditPhotoViewControllerDelegate {
+
+    /// Called when the user saves the edited image
+    func saveEditedImage(_ image: UIImage) {
+        // Handle the edited image
+        print("Edited image has been saved successfully!")
+    }
+}
+
 ```
 ### Explanation
 - **`EditPhotoViewController`**: This view controller provides the main interface for editing photos.
 - **`emojiDataSource`**: An object that supplies images(e.g., emojis) for use in the editor. It conforms to the `EditPhotoEmojiDataSource` protocol.
 - **`MyEmojiDataSource`**: A sample implementation of the `EditPhotoEmojiDataSource` protocol. It demonstrates how to load a set of images both for sections and specific items.
+- **`EditPhotoViewControllerDelegate`** A protocol to handle the saving of edited images.
 
 ## 🛠️ Customization
 You can create your own custom data source by conforming to the `EditPhotoEmojiDataSource` protocol. This allows you to dynamically load any set of emojis you wish to include.
