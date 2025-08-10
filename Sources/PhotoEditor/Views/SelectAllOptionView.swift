@@ -50,9 +50,8 @@ final class SelectAllOptionView: UIView {
     private func setupStyles() {
         backgroundColor = .black
         verticalLineView.backgroundColor = "333333".stringToColor
-        openEmojiButton.setImage(UIImage.loadAsset(named: "icon_emoji"), for: .normal)
-        openCanvasButton.setImage(UIImage.loadAsset(named: "icon_pencil"), for: .normal)
-        
+        openEmojiButton.setImage(UIImage(named: "icon_emoji", in: Bundle.module, compatibleWith: nil), for: .normal)
+        openCanvasButton.setImage(UIImage(named: "icon_pencil", in: Bundle.module, compatibleWith: nil), for: .normal)
         self.addBorder([.top, .bottom], color: "333333".stringToColor, width: 1)
     }
 }

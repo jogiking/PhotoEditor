@@ -32,13 +32,13 @@ import Then
     private var insertedImages: [StickerImageView] = []
     private var selectedImageView: StickerImageView?
     
-    var originImage: UIImage? {
+    public var originImage: UIImage? {
         didSet {
             mainImageView.image = originImage
         }
     }
     
-    weak var delegate: EditPhotoViewControllerDelegate?
+    public weak var delegate: EditPhotoViewControllerDelegate?
     
     private let viewModel: EditPhotoViewModel
 
@@ -57,7 +57,8 @@ import Then
         $0.contentMode = .scaleAspectFit
     }
     private lazy var dismissButton = UIButton(type: .custom).then {
-        $0.setImage(UIImage.loadAsset(named: "icon_close24"), for: .normal)
+        $0.setImage(UIImage(systemName: "xmark"), for: .normal)
+        $0.tintColor = .white
         $0.addTarget(self, action: #selector(dismissTapped), for: .touchUpInside)
     }
     private lazy var saveButton = UIButton(type: .custom).then {

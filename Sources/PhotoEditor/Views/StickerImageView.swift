@@ -21,7 +21,7 @@ final class StickerImageView: UIView {
         $0.isUserInteractionEnabled = true
     }
     private let handleImageView = UIImageView().then {
-        $0.image = UIImage.loadAsset(named: "icon_handle")
+        $0.image = UIImage(named: "icon_handle", in: Bundle.module, compatibleWith: nil)
         $0.contentMode = .scaleAspectFit
     }
     let deleteView = UIView().then {
@@ -30,7 +30,8 @@ final class StickerImageView: UIView {
         $0.isUserInteractionEnabled = true
     }
     private let deleteImageView = UIImageView().then {
-        $0.image = UIImage.loadAsset(named: "icon_close10")
+        $0.image = UIImage(systemName: "xmark")
+        $0.tintColor = .white
         $0.contentMode = .scaleAspectFit
     }
     
@@ -54,7 +55,6 @@ final class StickerImageView: UIView {
         super.init(frame: frame)
         addSubviews()
         setupLayouts()
-        setupStyles()
     }
 
     required init?(coder: NSCoder) {
@@ -91,10 +91,6 @@ final class StickerImageView: UIView {
     }
 
     private func setupStyles() {
-        // test
         backgroundColor = .clear
-        imageView.image = UIImage(systemName: "apple.logo")
     }
-
-    
 }

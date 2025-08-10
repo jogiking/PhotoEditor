@@ -28,7 +28,7 @@ final class EmojiOptionView: UIView, UICollectionViewDelegate, UICollectionViewD
         $0.dataSource = self
     }
     let closeButton = UIButton(type: .custom).then {
-        $0.setImage(UIImage.loadAsset(named: "icon_close16"), for: .normal)
+        $0.setImage(UIImage(systemName: "xmark"), for: .normal)
         $0.tintColor = .white
     }
     let closeBackgroundView = UIView().then {
