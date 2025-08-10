@@ -53,6 +53,11 @@ import Then
         $0.backgroundColor = .clear
         $0.delegate = self
     }
+    
+    private let topButtonContainerView = UIView().then {
+        $0.backgroundColor = .clear
+    }
+    
     private let mainImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
     }
@@ -61,7 +66,7 @@ import Then
         $0.tintColor = .white
         $0.addTarget(self, action: #selector(dismissTapped), for: .touchUpInside)
     }
-    private lazy var saveButton = UIButton(type: .custom).then {
+    public lazy var saveButton = UIButton(type: .custom).then {
         $0.setTitle("완료", for: .normal)
         $0.setTitleColor(.white, for: .normal)
         $0.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
@@ -124,10 +129,12 @@ import Then
     }
     
     private func addSubviews() {
-        view.addSubview(dismissButton)
-        view.addSubview(saveButton)
-        view.addSubview(undoButton)
-        view.addSubview(redoButton)
+        view.addSubview(topButtonContainerView)
+        topButtonContainerView.addSubview(dismissButton)
+        topButtonContainerView.addSubview(saveButton)
+        topButtonContainerView.addSubview(undoButton)
+        topButtonContainerView.addSubview(redoButton)
+        
         view.addSubview(mainImageContainerView)
         view.addSubview(bottomContainerView)
         mainImageContainerView.addSubview(mainImageView)
@@ -138,30 +145,38 @@ import Then
     }
     
     private func setupLayouts() {
-        dismissButton.snp.makeConstraints {
-            $0.leading.equalToSuperview().inset(12)
+        topButtonContainerView.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview()
             $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.height.equalTo(60)
+        }
+        
+        dismissButton.snp.makeConstraints {
+            $0.leading.equalToSuperview().inset(16)
+            $0.centerY.equalToSuperview()
             $0.size.equalTo(24)
         }
         saveButton.snp.makeConstraints {
-            $0.centerY.equalTo(dismissButton)
-            $0.trailing.equalToSuperview().inset(12)
+            $0.trailing.equalToSuperview().inset(16)
+            $0.centerY.equalToSuperview()
         }
         undoButton.snp.makeConstraints {
-            $0.centerY.equalTo(dismissButton)
             $0.leading.equalTo(dismissButton.snp.trailing).offset(24)
+            $0.centerY.equalToSuperview()
             $0.size.equalTo(24)
         }
         redoButton.snp.makeConstraints {
-            $0.top.equalTo(undoButton)
             $0.leading.equalTo(undoButton.snp.trailing).offset(10)
+            $0.centerY.equalToSuperview()
             $0.size.equalTo(24)
         }
+        
         mainImageContainerView.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview()
-            $0.top.equalTo(dismissButton.snp.bottom).offset(8)
+            $0.top.equalTo(topButtonContainerView.snp.bottom).offset(8)
             $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(80)
         }
+        
         canvasView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
